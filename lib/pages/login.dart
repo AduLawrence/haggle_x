@@ -219,7 +219,7 @@ class _LoginState extends State<Login> {
                                           padding: EdgeInsets.fromLTRB(5, 14, 5, 14),
 
                                           onPressed: (){
-                                            Navigator.pushNamed(context, "/register");
+                                            Navigator.pushNamed(context, "/select_country");
                                           },
                                           child: Text(
                                             "New User? Create a new account",

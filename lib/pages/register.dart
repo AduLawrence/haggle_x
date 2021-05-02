@@ -1,7 +1,10 @@
+import 'package:app/services/graph_ql_conf.dart';
+import 'package:app/services/mutation.dart';
 import 'package:app/services/mypaint.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 class Register extends StatefulWidget {
   @override
@@ -13,8 +16,9 @@ class _RegisterState extends State<Register> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   Pattern pattern =
       r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-  bool showButtons = true; bool showProgress = false; bool _obscureText = true, _countryLoading = false;
-  String _email, _password, _username, _referral_code, _phone_number;
+  bool savingMode = false; bool _obscureText = true;
+  String _email, _password, _username, _referral_code = "", _phone_number;
+  Map data;
 
   Widget _buildEmail(){
     return TextFormField(
@@ -202,7 +206,7 @@ class _RegisterState extends State<Register> {
           flex: 3,
           child: InkWell(
             onTap: (){
-              Navigator.pushNamed(context, "/select_country");
+
             },
             child: Container(
               decoration: BoxDecoration(
@@ -211,18 +215,17 @@ class _RegisterState extends State<Register> {
               ),
               margin: const EdgeInsets.fromLTRB(0, 10, 5, 0),
               padding: const EdgeInsets.all(5),
-              child: _countryLoading ? Icon(Icons.autorenew, color: Colors.grey,) : Row(
+              child: Row(
                 children: [
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 5, 3, 0),
-                    child: Image.asset(
-                      "assets/back1.png",
-                      height: 30,
-                      width: 30,
-                      alignment: Alignment.topLeft,
+                    child: SvgPicture.network(
+                      data['flag'],
+                      placeholderBuilder: (context) => CircularProgressIndicator(),
+                      width: 30.0,
                     ),
                   ),
-                  Text("(+234)"),
+                  Text("(+${data['code']})"),
                 ],
               ),
             ),
@@ -235,169 +238,194 @@ class _RegisterState extends State<Register> {
       ],
     );
   }
-  void submitUserDetails() async{
 
+  void registrationCompleted(data){
+
+    print(data['register']['token']);
+
+    setState(() {
+      savingMode = false;
+    });
+
+    //redirect to the page for account verification
+    Navigator.pushReplacementNamed(context, "/verify_user", arguments: {"code" : data['register']['token']});
 
   }
 
-
   @override
   Widget build(BuildContext context) {
+    data = ModalRoute.of(context).settings.arguments;
+
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(
-              "assets/bg.png",
+      body: GraphQLProvider(
+        client: GraphQLConfiguration().client,
+        child: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(
+                "assets/bg.png",
+              ),
+              fit: BoxFit.cover,
             ),
-            fit: BoxFit.cover,
           ),
-        ),
-        child: SafeArea(
-          child: CustomScrollView(
-            slivers: <Widget>[
-              SliverList(
-                delegate: SliverChildListDelegate(
-                    [
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: <Widget>[
-                          InkWell(
-                            onTap: (){
-                              Navigator.pop(context);
-                            },
-                            child: Image.asset(
-                              "assets/back1.png",
-                              height: 36,
-                              width: 45,
-                              alignment: Alignment.topLeft,
-                            ),
-                          ),
-
-                            SizedBox(height: 20,),
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Colors.white,
+          child: SafeArea(
+            child: CustomScrollView(
+              slivers: <Widget>[
+                SliverList(
+                  delegate: SliverChildListDelegate(
+                      [
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: <Widget>[
+                            InkWell(
+                              onTap: (){
+                                Navigator.pop(context);
+                              },
+                              child: Image.asset(
+                                "assets/back1.png",
+                                height: 36,
+                                width: 45,
+                                alignment: Alignment.topLeft,
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(30),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: [
-                                    Text(
-                                      "Create a new account",
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontFamily: "basis_grotesque_pro",
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                        letterSpacing: 0,
+                            ),
+
+                              SizedBox(height: 20,),
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Colors.white,
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(30),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      Text(
+                                        "Create a new account",
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontFamily: "basis_grotesque_pro",
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                          letterSpacing: 0,
+                                        ),
+                                        textAlign: TextAlign.left,
                                       ),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                    Form(
-                                      key: _formKey,
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                                        children: <Widget>[
-                                          SizedBox(height: 40,),
-                                          _buildEmail(),
-                                          SizedBox(height: 30,),
-                                          _buildPassword(),
-                                          SizedBox(height: 30,),
-                                          _buildUsername(),
-                                          SizedBox(height: 30,),
-                                          _buildPhone(),
-                                          SizedBox(height: 30,),
-                                          _buildReferralCode(),
-                                          Visibility(
-                                            visible: showProgress,
-                                            child: SpinKitDoubleBounce(
-                                              color: MyPaint.getMainColor(),
-                                              size: 50.0,
+                                      Form(
+                                        key: _formKey,
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                                          children: <Widget>[
+                                            SizedBox(height: 40,),
+                                            _buildEmail(),
+                                            SizedBox(height: 30,),
+                                            _buildPassword(),
+                                            SizedBox(height: 30,),
+                                            _buildUsername(),
+                                            SizedBox(height: 30,),
+                                            _buildPhone(),
+                                            SizedBox(height: 30,),
+                                            _buildReferralCode(),
+
+                                            SizedBox(height: 30,),
+                                            Text(
+                                              "By signing up, you agree to HaggleX terms and privacy",
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 12,
+                                                fontFamily: "basis_grotesque_pro",),
                                             ),
-                                          ),
+                                            SizedBox(height: 40,),
+                                            savingMode ? Center(child: CircularProgressIndicator())
+                                                :
+                                            Mutation(
+                                                options: MutationOptions(
+                                                  /// Insert mutation here
+                                                  documentNode: gql(QueryMutation().insertUser()),
 
-                                          SizedBox(height: 30,),
+                                                  /// Tell the GraphQL client to fetch the data from
+                                                  /// the network only and don't cache it
+                                                  fetchPolicy: FetchPolicy.noCache,
 
-                                          Visibility(
-                                            visible: showButtons,
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              children: <Widget>[
-                                                InkWell(
-                                                  onTap: (){
+                                                  /// Whenever the [Form] closes, this tells the previous [route]
+                                                  /// whether it needs to rebuild itself or not
+                                                  onCompleted: (data) => {
+                                                    registrationCompleted(data)
                                                   },
-                                                  splashColor: Colors.white,
-                                                  child: Text(
-                                                    "By signing up, you agree to HaggleX terms and privacy",
-                                                    style: TextStyle(
-                                                      color: Colors.black,
-                                                      fontSize: 12,
-                                                      fontFamily: "basis_grotesque_pro",),
-                                                  ),
                                                 ),
-                                                SizedBox(height: 40,),
+                                                builder: (
+                                                    RunMutation runMutation,
+                                                    QueryResult result,
+                                                    ) {
 
-                                                FlatButton(
-                                                  padding: EdgeInsets.fromLTRB(5, 15, 5, 15),
-                                                  color: MyPaint.getMainColor(),
-                                                  shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(10.0)),
+                                                  return FlatButton(
+                                                    padding: EdgeInsets.fromLTRB(5, 15, 5, 15),
+                                                    color: MyPaint.getMainColor(),
+                                                    shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(10.0)),
 
-                                                  onPressed: (){
-                                                    if(!_formKey.currentState.validate()){
-                                                      return;
-                                                    }
+                                                    onPressed: (){
+                                                      if(!_formKey.currentState.validate()){
+                                                        return;
+                                                      }
 
-                                                    _formKey.currentState.save();
+                                                      _formKey.currentState.save();
 
-                                                    setState(() {
-                                                      showProgress = true;
-                                                      showButtons = false;
-                                                    });
+                                                      setState(() {
+                                                        savingMode = true;
+                                                      });
 
-                                                    submitUserDetails();
+                                                      runMutation({
+                                                        'email': _email,
+                                                        'username': _username,
+                                                        'password': _password,
+                                                        'phonenumber': _phone_number,
+                                                        'referralcode': _referral_code,
+                                                        'callingcode': data['code'],
+                                                        'flag': data['flag'],
+                                                        'country': data['country'],
+                                                        'currency': data['currency'],
+                                                      });
 
-                                                  },
+                                                    },
 
-                                                  child: Text(
-                                                    "SIGN UP",
-                                                    style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontFamily: "basis_grotesque_pro",
-                                                        fontWeight: FontWeight.bold
+                                                    child: Text(
+                                                      "SIGN UP",
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontFamily: "basis_grotesque_pro",
+                                                          fontWeight: FontWeight.bold
+                                                      ),
                                                     ),
-                                                  ),
-                                                ),
-
-                                              ],
+                                                  )
+                                                  ;
+                                                }
                                             ),
-                                          ),
 
-                                        ],
+
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
 
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ]
+                      ]
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
+
       ),
     );
   }
