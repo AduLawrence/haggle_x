@@ -1,12 +1,7 @@
-import 'dart:io';
-import 'package:app/services/mypaint.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void loadNewScreen(){
-
-}
 
 class Splash extends StatefulWidget {
 
@@ -16,7 +11,6 @@ class Splash extends StatefulWidget {
 
 class _SplashState extends State<Splash> {
   bool loggedIn = false;
-  String user;
 
   @override
   void initState() {
@@ -42,9 +36,8 @@ class _SplashState extends State<Splash> {
 
   void getLoginDetails() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if(prefs.getKeys().contains("user")){
+    if(prefs.getKeys().contains("user_token")){
       loggedIn = true;
-      user = prefs.getString("user");
     }else{
       loggedIn = false;
     }

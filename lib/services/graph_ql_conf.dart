@@ -13,6 +13,26 @@ class GraphQLConfiguration {
     ),
   );
 
+  ValueNotifier<GraphQLClient> getClientAuth(code){
+    HttpLink httpLinkAuth = HttpLink(
+        uri: "https://hagglex-backend-staging.herokuapp.com/graphql",
+        headers: {
+          "authorization" : "Bearer $code"
+        }
+    );
+
+    ValueNotifier<GraphQLClient> clientAuth = ValueNotifier(
+      GraphQLClient(
+        link: httpLinkAuth,
+        cache: OptimisticCache(dataIdFromObject: typenameDataIdFromObject),
+      ),
+    );
+
+
+    return clientAuth;
+
+  }
+
   GraphQLClient clientToQuery() {
     return GraphQLClient(
       cache: OptimisticCache(dataIdFromObject: typenameDataIdFromObject),

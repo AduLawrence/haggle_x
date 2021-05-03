@@ -1,7 +1,12 @@
+import 'package:app/services/graph_ql_conf.dart';
+import 'package:app/services/mutation.dart';
 import 'package:app/services/mypaint.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -13,7 +18,7 @@ class _LoginState extends State<Login> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   Pattern pattern =
       r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-  bool showButtons = true; bool showProgress = false; bool _obscureText = true;
+  bool showButtons = true; bool savingMode = false; bool _obscureText = true;
   String _email, _password;
 
   Widget _buildEmail(){
@@ -22,7 +27,9 @@ class _LoginState extends State<Login> {
       decoration: InputDecoration(
         labelText: "Email Address",
         labelStyle: TextStyle(
-            color: Colors.white
+          color: Colors.white,
+          fontSize: 14,
+          fontFamily: "basis_grotesque_pro",
         ),
         fillColor: Colors.white,
         border: UnderlineInputBorder(
@@ -33,7 +40,6 @@ class _LoginState extends State<Login> {
         ),
 
       ),
-
 
       validator: (String value){
         if(value.isEmpty){
@@ -94,8 +100,33 @@ class _LoginState extends State<Login> {
     );
   }
 
-  void submitUserDetails() async{
+  Future<void> loginCompleted(data) async {
 
+//    print(data['login']['token']);
+
+    //redirect to the page for account verification
+    if(data != null){
+      //save the token in sharedpreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_token', data['login']['token']);
+
+      Navigator.pushReplacementNamed(context, "/home");
+
+    }else{
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.ERROR,
+        animType: AnimType.BOTTOMSLIDE,
+        title: 'Wrong Login Details',
+        desc: 'The login details you provided are not correct, please check the details and try again.',
+        btnCancelOnPress: () {},
+        btnCancelText: "OK",
+      )..show();
+    }
+
+    setState(() {
+      savingMode = false;
+    });
 
   }
 
@@ -103,62 +134,58 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(
-              "assets/bg.png",
+      body: GraphQLProvider(
+        client: GraphQLConfiguration().client,
+        child: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(
+                "assets/bg.png",
+              ),
+              fit: BoxFit.cover,
             ),
-            fit: BoxFit.cover,
           ),
-        ),
-        child: SafeArea(
-          child: CustomScrollView(
-            slivers: <Widget>[
-              SliverList(
-                delegate: SliverChildListDelegate(
-                    [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(40, 50, 40, 20),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: <Widget>[
-                            SizedBox(
-                              height: 100,
-                            ),
-                            Text(
-                              "Welcome!",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontFamily: "basis_grotesque_pro",
-                                fontWeight: FontWeight.bold,
-                                fontSize: 40,
-                                letterSpacing: 0,
+          child: SafeArea(
+            child: CustomScrollView(
+              slivers: <Widget>[
+                SliverList(
+                  delegate: SliverChildListDelegate(
+                      [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(40, 50, 40, 20),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: <Widget>[
+                              SizedBox(
+                                height: 100,
                               ),
-                              textAlign: TextAlign.left,
-                            ),
-                            Form(
-                              key: _formKey,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: <Widget>[
-                                  SizedBox(height: 40,),
-                                  _buildEmail(),
-                                  SizedBox(height: 20,),
-                                  _buildPassword(),
-                                  SizedBox(height: 20,),
-                                  Visibility(
-                                    visible: showProgress,
-                                    child: SpinKitDoubleBounce(
-                                      color: MyPaint.getMainColor(),
-                                      size: 50.0,
-                                    ),
-                                  ),
-                                  Visibility(
-                                    visible: showButtons,
-                                    child: Column(
+                              Text(
+                                "Welcome!",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: "basis_grotesque_pro",
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 40,
+                                  letterSpacing: 0,
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                              Form(
+                                key: _formKey,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: <Widget>[
+                                    SizedBox(height: 40,),
+                                    _buildEmail(),
+                                    SizedBox(height: 20,),
+                                    _buildPassword(),
+                                    SizedBox(height: 20,),
+
+                                    savingMode ? Center(child: CircularProgressIndicator())
+                                        :
+                                    Column(
                                       crossAxisAlignment: CrossAxisAlignment.stretch,
                                       children: <Widget>[
                                         Column(
@@ -182,37 +209,64 @@ class _LoginState extends State<Login> {
                                         ),
                                         SizedBox(height: 40,),
 
-                                        FlatButton(
-                                          padding: EdgeInsets.fromLTRB(5, 18, 5, 18),
-                                          color: MyPaint.getYellowColor(),
-                                          shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(10.0)),
+                                        Mutation(
+                                            options: MutationOptions(
+                                              /// Insert mutation here
+                                              documentNode: gql(QueryMutation().loginUser()),
 
-                                          onPressed: (){
-                                            if(!_formKey.currentState.validate()){
-                                              return;
-                                            }
+                                              /// Tell the GraphQL client to fetch the data from
+                                              /// the network only and don't cache it
+                                              fetchPolicy: FetchPolicy.noCache,
 
-                                            _formKey.currentState.save();
-
-                                            setState(() {
-                                              showProgress = true;
-                                              showButtons = false;
-                                            });
-
-                                            submitUserDetails();
-
-                                          },
-
-                                          child: Text(
-                                            "LOG IN",
-                                            style: TextStyle(
-                                              color: MyPaint.getMainColor(),
-                                              fontFamily: "basis_grotesque_pro",
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold
+                                              /// Whenever the [Form] closes, this tells the previous [route]
+                                              /// whether it needs to rebuild itself or not
+                                              onCompleted: (data) => {
+                                                loginCompleted(data)
+                                              },
                                             ),
-                                          ),
+                                            builder: (
+                                                RunMutation runMutation,
+                                                QueryResult result,
+                                                ) {
+
+                                              return FlatButton(
+                                                padding: EdgeInsets.fromLTRB(5, 18, 5, 18),
+                                                color: MyPaint.getYellowColor(),
+                                                shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(10.0)),
+
+                                                onPressed: (){
+                                                  if(!_formKey.currentState.validate()){
+                                                    return;
+                                                  }
+
+                                                  _formKey.currentState.save();
+
+                                                  setState(() {
+                                                    savingMode = true;
+                                                  });
+
+                                                  runMutation({
+                                                    'input': _email,
+                                                    'password': _password,
+                                                  });
+
+                                                },
+
+                                                child: Text(
+                                                  "LOG IN",
+                                                  style: TextStyle(
+                                                      color: MyPaint.getMainColor(),
+                                                      fontFamily: "basis_grotesque_pro",
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.bold
+                                                  ),
+                                                ),
+
+                                              );
+                                            }
                                         ),
+
+
                                         SizedBox(height: 20,),
 
                                         FlatButton(
@@ -231,21 +285,23 @@ class _LoginState extends State<Login> {
                                         ),
                                       ],
                                     ),
-                                  ),
 
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ]
+                      ]
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
+
       ),
+
     );
   }
 }

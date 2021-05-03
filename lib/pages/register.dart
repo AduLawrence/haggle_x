@@ -248,7 +248,10 @@ class _RegisterState extends State<Register> {
     });
 
     //redirect to the page for account verification
-    Navigator.pushReplacementNamed(context, "/verify_user", arguments: {"code" : data['register']['token']});
+    if(data['register']['token'] != ""){
+      Navigator.pushReplacementNamed(context, "/verify_user", arguments: {"code" : data['register']['token'], "email" : _email});
+
+    }
 
   }
 

@@ -28,4 +28,41 @@ class QueryMutation {
     """;
   }
 
+  String verifyUser() {
+
+    return """
+      mutation verify(\$code: Int!) {
+        verifyUser(data: {
+          code: \$code      
+        }) {          
+            token,    
+        }
+      }
+    """;
+  }
+
+  String loginUser() {
+
+    return """
+      mutation login_user(\$input: String!, \$password: String!) {
+        login(data: {
+          input: \$input,
+          password: \$password       
+        }) {          
+            token,    
+        }
+      }
+    """;
+  }
+
+  String resendVerificationCode() {
+
+    return """
+      query verification_code(\$email: String!) {
+        resendVerificationCode(data: {
+          email: \$email        
+        }) 
+      }
+    """;
+  }
 }
