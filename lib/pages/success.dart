@@ -1,9 +1,6 @@
-import 'package:app/services/graph_ql_conf.dart';
-import 'package:app/services/mutation.dart';
 import 'package:app/services/mypaint.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 
 class Success extends StatefulWidget {
   @override
@@ -12,62 +9,11 @@ class Success extends StatefulWidget {
 
 class _SuccessState extends State<Success> {
 
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  bool savingMode = false; String _token;
-  int _verificationCode;
   Map data;
-
-  Widget _buildVerificationCode(){
-    return TextFormField(
-      keyboardType: TextInputType.number,
-      decoration: InputDecoration(
-        labelText: "Verification Code",
-        labelStyle: TextStyle(
-          color: Colors.black,
-          fontSize: 14,
-          fontFamily: "basis_grotesque_pro",
-        ),
-        fillColor: Colors.black,
-        border: UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.black),
-        ),
-        enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.black),
-        ),
-
-      ),
-
-
-      validator: (String value){
-        if(value.isEmpty){
-          return "Verification code is required";
-        }
-      },
-
-      onSaved: (String value){
-        _verificationCode = int.parse(value);
-      },
-    );
-  }
-
-  void verificationDone(data){
-//    print(data['verifyUser']['token']);
-
-    setState(() {
-      savingMode = false;
-    });
-
-    //redirect to the success page
-    if(data['verifyUser']['token'] != ""){
-      Navigator.pushReplacementNamed(context, "/success", arguments: {"code" : data['verifyUser']['token']});
-    }
-
-  }
 
   @override
   Widget build(BuildContext context) {
     data = ModalRoute.of(context).settings.arguments;
-
 
     return Scaffold(
       body: Container(

@@ -241,14 +241,14 @@ class _RegisterState extends State<Register> {
 
   void registrationCompleted(data){
 
-    print(data['register']['token']);
+//    print(data['register']['token']);
 
     setState(() {
       savingMode = false;
     });
 
     //redirect to the page for account verification
-    if(data['register']['token'] != ""){
+    if(data != null){
       Navigator.pushReplacementNamed(context, "/verify_user", arguments: {"code" : data['register']['token'], "email" : _email});
 
     }

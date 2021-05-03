@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:graphql_flutter/graphql_flutter.dart";
 
 class GraphQLConfiguration {
+  //the url
   static HttpLink httpLink = HttpLink(
     uri: "https://hagglex-backend-staging.herokuapp.com/graphql",
   );
@@ -13,6 +14,8 @@ class GraphQLConfiguration {
     ),
   );
 
+
+  //with authorization
   ValueNotifier<GraphQLClient> getClientAuth(code){
     HttpLink httpLinkAuth = HttpLink(
         uri: "https://hagglex-backend-staging.herokuapp.com/graphql",

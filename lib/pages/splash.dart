@@ -22,9 +22,11 @@ class _SplashState extends State<Splash> {
       DeviceOrientation.portraitDown,
     ]);
 
+    //to check if the user is logged in
     getLoginDetails();
 
     Future.delayed(Duration(seconds: 10), () async{
+      //take the user to the appropriate screen after 10 seconds
       if(loggedIn) {
         Navigator.pushReplacementNamed(context, "/home");
       }else {

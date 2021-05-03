@@ -13,6 +13,7 @@ class _Countries  extends State<Countries> {
 
 
   Widget build(BuildContext context) {
+    //the graphqlProvider for graphQL communications
     return GraphQLProvider(
       child: GetCountries(),
       client: GraphQLConfiguration().client,

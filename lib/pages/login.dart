@@ -4,7 +4,6 @@ import 'package:app/services/mypaint.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,12 +23,12 @@ class _LoginState extends State<Login> {
   Widget _buildEmail(){
     return TextFormField(
       keyboardType: TextInputType.emailAddress,
+      style: TextStyle(color: Colors.white),
       decoration: InputDecoration(
         labelText: "Email Address",
         labelStyle: TextStyle(
           color: Colors.white,
-          fontSize: 14,
-          fontFamily: "basis_grotesque_pro",
+          fontSize: 16,
         ),
         fillColor: Colors.white,
         border: UnderlineInputBorder(
@@ -38,7 +37,6 @@ class _LoginState extends State<Login> {
         enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: Colors.white),
         ),
-
       ),
 
       validator: (String value){
@@ -61,6 +59,7 @@ class _LoginState extends State<Login> {
   Widget _buildPassword(){
     return TextFormField(
       keyboardType: TextInputType.visiblePassword,
+      style: TextStyle(color: Colors.white),
       decoration: InputDecoration(
         labelText: "Password (Min. 8 characters)",
         labelStyle: TextStyle(
@@ -104,7 +103,7 @@ class _LoginState extends State<Login> {
 
 //    print(data['login']['token']);
 
-    //redirect to the page for account verification
+    //redirect to the home page
     if(data != null){
       //save the token in sharedpreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();

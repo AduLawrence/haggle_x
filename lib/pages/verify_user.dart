@@ -53,19 +53,19 @@ class _VerifyUserState extends State<VerifyUser> {
   void verificationDone(data){
 //    print(data['verifyUser']['token']);
 
+    //redirect to the success page
+    if(data != null){
+      Navigator.pushReplacementNamed(context, "/success", arguments: {"code" : data['verifyUser']['token']});
+    }
+
     setState(() {
       savingMode = false;
     });
 
-    //redirect to the success page
-    if(data['verifyUser']['token'] != ""){
-      Navigator.pushReplacementNamed(context, "/success", arguments: {"code" : data['verifyUser']['token']});
-    }
-
   }
 
   void resendVCDone(data){
-    print(data);
+//    print(data);
 
     verifying = false;
 
