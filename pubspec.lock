@@ -92,6 +92,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.5"
+  crypto_font_icons:
+    dependency: "direct main"
+    description:
+      name: crypto_font_icons
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.0"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -219,6 +226,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.12.10-nullsafety.3"
+  material_design_icons_flutter:
+    dependency: "direct main"
+    description:
+      name: material_design_icons_flutter
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.0.5955"
   meta:
     dependency: transitive
     description:
